@@ -27,6 +27,7 @@ export default function App() {
   const [authView, setAuthView] = useState<'login' | 'signup'>('login')
   const [loginError, setLoginError] = useState<string | null>(null)
   const [signupMessage, setSignupMessage] = useState<string | null>(null)
+  const [loginLoading, setLoginLoading] = useState(false)
   const [signupLoading, setSignupLoading] = useState(false)
   const [tenants, setTenants] = useState<Tenant[]>([])
   const [tenantLoading, setTenantLoading] = useState(false)
@@ -74,12 +75,15 @@ export default function App() {
       return
     }
     setAuthCredentials({ username, password })
+    setLoginLoading(true)
     try {
       const me = await fetchCurrentUser()
       setUser(me)
     } catch (err) {
       setLoginError(err instanceof Error ? err.message : 'Login failed')
       setUser(null)
+    } finally {
+      setLoginLoading(false)
     }
   }
 
@@ -167,16 +171,22 @@ export default function App() {
           {authView === 'login' ? (
             <>
               <form className="app-login" onSubmit={handleLogin}>
+                {loginLoading && (
+                  <div className="app-loading" aria-live="polite">
+                    <span className="app-spinner" />
+                    <span>Logging in…</span>
+                  </div>
+                )}
                 <label htmlFor="username">Username</label>
-                <input id="username" name="username" type="text" autoComplete="username" required />
+                <input id="username" name="username" type="text" autoComplete="username" required disabled={loginLoading} />
                 <label htmlFor="password">Password</label>
-                <input id="password" name="password" type="password" autoComplete="current-password" required />
+                <input id="password" name="password" type="password" autoComplete="current-password" required disabled={loginLoading} />
                 {loginError && <p className="app-login-error">{loginError}</p>}
                 {signupMessage && <p className="app-login-success">{signupMessage}</p>}
-                <button type="submit">Log in</button>
+                <button type="submit" disabled={loginLoading}>Log in</button>
               </form>
               <p>
-                <button type="button" className="app-link" onClick={() => { setAuthView('signup'); setLoginError(null); setSignupMessage(null); }}>
+                <button type="button" className="app-link" onClick={() => { setAuthView('signup'); setLoginError(null); setSignupMessage(null); }} disabled={loginLoading}>
                   Sign up (new company)
                 </button>
               </p>
