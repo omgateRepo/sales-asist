@@ -1,0 +1,9 @@
+---
+description: Work only in SalesAsist project
+alwaysApply: true
+---
+
+# Project scope
+
+- **Only work in this project** (SalesAsist). All edits, commits, and pushes must be in this repo and directory.
+- Before making changes or running git, confirm you are in the sales-asist project path.

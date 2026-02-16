@@ -1,0 +1,10 @@
+---
+description: Agent owns deployment; never ask the user to deploy
+alwaysApply: true
+---
+
+# Deployment ownership
+
+- **You are the one who deploys.** When a change is ready for production (Render), you commit and push to trigger the deploy. Do not ask the user to deploy, push, or "trigger a deploy."
+- After making deployable changes, run: `git add` (relevant files), `git commit`, and `git push` so the deployment pipeline runs.
+- Do not say "you can deploy now" or "push to trigger a deploy"—you perform the push yourself.
