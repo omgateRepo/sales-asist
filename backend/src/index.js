@@ -50,7 +50,7 @@ const apiLimiter = rateLimit({
 
 const authMiddleware = createAuthMiddleware({
   enabled: !skipAuth,
-  bypass: ['/api/health'],
+  bypass: ['/api/health', '/api/signup'],
 })
 
 app.use('/api', authMiddleware, apiLimiter, routes)

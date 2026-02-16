@@ -33,6 +33,9 @@ const stubUser = {
   email: envUsername || 'stub@local',
   displayName: 'Stub Admin',
   isSuperAdmin: true,
+  role: 'platform_admin',
+  tenantId: null,
+  tenantStatus: null,
   synthetic: true,
 }
 
@@ -67,6 +70,7 @@ export default function createAuthMiddleware({ enabled = true, bypass = [] } = {
       if (!SKIP_DB) {
         const dbUser = await prisma.users.findUnique({
           where: { email: envUsername.toLowerCase() },
+          include: { tenant: true },
         })
         if (dbUser) {
           req.user = {
@@ -74,11 +78,17 @@ export default function createAuthMiddleware({ enabled = true, bypass = [] } = {
             email: dbUser.email,
             displayName: dbUser.display_name || envUsername,
             isSuperAdmin: Boolean(dbUser.is_super_admin),
+            role: dbUser.role || (dbUser.is_super_admin ? 'platform_admin' : 'company_admin'),
+            tenantId: dbUser.tenant_id ?? null,
+            tenantStatus: dbUser.tenant?.status ?? null,
             synthetic: false,
           }
           return next()
         }
       }
+      baseUser.role = 'platform_admin'
+      baseUser.tenantId = null
+      baseUser.tenantStatus = null
       req.user = baseUser
       return next()
     }
@@ -92,6 +102,7 @@ export default function createAuthMiddleware({ enabled = true, bypass = [] } = {
       const normalizedEmail = username?.toLowerCase()
       const user = await prisma.users.findUnique({
         where: { email: normalizedEmail },
+        include: { tenant: true },
       })
       if (!user) {
         return unauthorized(res)
@@ -104,7 +115,10 @@ export default function createAuthMiddleware({ enabled = true, bypass = [] } = {
         id: user.id,
         email: user.email,
         displayName: user.display_name,
-        isSuperAdmin: user.is_super_admin,
+        isSuperAdmin: Boolean(user.is_super_admin),
+        role: user.role || (user.is_super_admin ? 'platform_admin' : 'company_admin'),
+        tenantId: user.tenant_id ?? null,
+        tenantStatus: user.tenant?.status ?? null,
         synthetic: false,
       }
       return next()
@@ -112,4 +126,26 @@ export default function createAuthMiddleware({ enabled = true, bypass = [] } = {
       return next(err)
     }
   }
+}
+
+/** Require platform admin (super admin). Use after auth. */
+export function requirePlatformAdmin(req, res, next) {
+  if (req.user?.role === 'platform_admin' || req.user?.isSuperAdmin) {
+    return next()
+  }
+  return res.status(403).json({ error: 'Platform admin only' })
+}
+
+/** Require company admin with active tenant (or platform admin). Use after auth. */
+export function requireActiveTenant(req, res, next) {
+  if (req.user?.role === 'platform_admin' || req.user?.isSuperAdmin) {
+    return next()
+  }
+  if (req.user?.role === 'company_admin' && req.user?.tenantStatus === 'active') {
+    return next()
+  }
+  if (req.user?.role === 'company_admin' && req.user?.tenantStatus === 'pending') {
+    return res.status(403).json({ error: 'Tenant pending approval', code: 'TENANT_PENDING' })
+  }
+  return res.status(403).json({ error: 'Active tenant required' })
 }

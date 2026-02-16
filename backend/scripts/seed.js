@@ -4,7 +4,7 @@ import prisma from '../src/prisma.js'
 
 const DEFAULT_ADMIN_EMAIL = 'admin'
 const DEFAULT_ADMIN_PASSWORD = 'Password1'
-const DEFAULT_ADMIN_DISPLAY_NAME = 'Admin'
+const DEFAULT_ADMIN_DISPLAY_NAME = 'Platform Admin'
 
 async function seed() {
   if (!process.env.DATABASE_URL) {
@@ -19,11 +19,12 @@ async function seed() {
         email: DEFAULT_ADMIN_EMAIL,
         display_name: DEFAULT_ADMIN_DISPLAY_NAME,
         password_hash: passwordHash,
+        role: 'platform_admin',
         is_super_admin: true,
       },
-      update: {},
+      update: { role: 'platform_admin', is_super_admin: true },
     })
-    console.log('Seed: default admin user (admin / Password1) ensured')
+    console.log('Seed: platform admin (admin / Password1) ensured')
   } catch (err) {
     console.error('Seed failed:', err)
     process.exit(1)
