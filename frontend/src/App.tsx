@@ -128,8 +128,9 @@ export default function App() {
 
   if (loading) return <div className="app">Loading…</div>
 
+  const showCompanyDashboard = user?.role === 'company_admin' && user?.tenantStatus !== 'pending'
   return (
-    <div className="app">
+    <div className={`app${showCompanyDashboard ? ' app--dashboard' : ''}`}>
       <h1>SalesAsist</h1>
       <p className="app-version">Version {APP_VERSION}</p>
       <p className="app-api">API: {API_BASE || '(same origin)'}</p>
@@ -160,7 +161,30 @@ export default function App() {
               {user.tenantStatus === 'pending' ? (
                 <p className="app-pending">Your company is pending approval. Contact the platform administrator.</p>
               ) : (
-                <p>Dashboard — ServiceTitan connection coming next.</p>
+                <div className="app-dashboard">
+                  <header className="app-dashboard-header">
+                    <h2>Dashboard</h2>
+                    <p className="app-dashboard-user">Hello, {user.displayName}</p>
+                  </header>
+                  <div className="app-dashboard-cards">
+                    <div className="app-card">
+                      <h3>ServiceTitan</h3>
+                      <p className="app-card-placeholder">Connect your ServiceTitan account to sync customers and jobs. (Coming soon)</p>
+                    </div>
+                    <div className="app-card">
+                      <h3>Customers</h3>
+                      <p className="app-card-placeholder">Customers will appear here after you connect ServiceTitan and run a sync.</p>
+                    </div>
+                    <div className="app-card">
+                      <h3>Jobs & appointments</h3>
+                      <p className="app-card-placeholder">Today’s jobs and assigned reps will appear here. You can send briefings to reps from each job.</p>
+                    </div>
+                    <div className="app-card">
+                      <h3>Rep phone numbers</h3>
+                      <p className="app-card-placeholder">Set or override rep phone numbers for SMS briefings when not provided by ServiceTitan.</p>
+                    </div>
+                  </div>
+                </div>
               )}
             </section>
           )}
