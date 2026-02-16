@@ -27,6 +27,7 @@ export default function App() {
   const [authView, setAuthView] = useState<'login' | 'signup'>('login')
   const [loginError, setLoginError] = useState<string | null>(null)
   const [signupMessage, setSignupMessage] = useState<string | null>(null)
+  const [signupLoading, setSignupLoading] = useState(false)
   const [tenants, setTenants] = useState<Tenant[]>([])
   const [tenantLoading, setTenantLoading] = useState(false)
 
@@ -95,12 +96,15 @@ export default function App() {
       setLoginError('Company name, email, and password are required')
       return
     }
+    setSignupLoading(true)
     try {
       await signupCompany({ companyName, email, password, displayName: displayName || email })
       setSignupMessage('Company created. Pending platform approval. You can log in after approval.')
       setAuthView('login')
     } catch (err) {
       setLoginError(err instanceof Error ? err.message : 'Signup failed')
+    } finally {
+      setSignupLoading(false)
     }
   }
 
@@ -182,19 +186,25 @@ export default function App() {
             <>
               <form className="app-login" onSubmit={handleSignup}>
                 <h2>Company signup</h2>
+                {signupLoading && (
+                  <div className="app-loading" aria-live="polite">
+                    <span className="app-spinner" />
+                    <span>Signing up…</span>
+                  </div>
+                )}
                 <label htmlFor="companyName">Company name</label>
-                <input id="companyName" name="companyName" type="text" required />
+                <input id="companyName" name="companyName" type="text" required disabled={signupLoading} />
                 <label htmlFor="email">Email</label>
-                <input id="email" name="email" type="email" autoComplete="email" required />
+                <input id="email" name="email" type="email" autoComplete="email" required disabled={signupLoading} />
                 <label htmlFor="signup-password">Password</label>
-                <input id="signup-password" name="password" type="password" autoComplete="new-password" required />
+                <input id="signup-password" name="password" type="password" autoComplete="new-password" required disabled={signupLoading} />
                 <label htmlFor="displayName">Display name (optional)</label>
-                <input id="displayName" name="displayName" type="text" />
+                <input id="displayName" name="displayName" type="text" disabled={signupLoading} />
                 {loginError && <p className="app-login-error">{loginError}</p>}
-                <button type="submit">Sign up</button>
+                <button type="submit" disabled={signupLoading}>Sign up</button>
               </form>
               <p>
-                <button type="button" className="app-link" onClick={() => { setAuthView('login'); setLoginError(null); }}>
+                <button type="button" className="app-link" onClick={() => { setAuthView('login'); setLoginError(null); setSignupMessage(null); }} disabled={signupLoading}>
                   Back to log in
                 </button>
               </p>

@@ -16,3 +16,10 @@
 .app-platform li { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
 .app-platform button { margin-left: 0.5rem; padding: 0.25rem 0.5rem; font-size: 0.875rem; cursor: pointer; }
 .app-pending { color: #c60; font-weight: 500; }
+
+.app-loading { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.app-spinner {
+  width: 1rem; height: 1rem; border: 2px solid #eee; border-top-color: #06c; border-radius: 50%;
+  animation: app-spin 0.7s linear infinite;
+}
+@keyframes app-spin { to { transform: rotate(360deg); } }
