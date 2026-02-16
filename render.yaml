@@ -1,5 +1,5 @@
 # Render Blueprint – database first so fromDatabase resolves when services are created
-# Build: build:api. preDeploy: migrate:api. Start: start:api.
+# Build: build:api. Start: start:api (migrate + seed run in start script; preDeploy not supported on free tier).
 # Docs: https://render.com/docs/blueprint-spec
 
 databases:
@@ -14,7 +14,6 @@ services:
     plan: free
     region: oregon
     buildCommand: npm run build:api
-    preDeployCommand: npm run migrate:api && npm run seed:api
     startCommand: npm run start:api
     envVars:
       - key: NODE_ENV
