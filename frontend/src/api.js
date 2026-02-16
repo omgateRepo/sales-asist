@@ -82,3 +82,26 @@ export async function fetchCurrentUser() {
   const res = await request('/api/me')
   return handleJsonResponse(res, 'Failed to fetch user')
 }
+
+export async function signupCompany(body) {
+  const res = await fetch(`${baseUrl}/api/signup`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  return handleJsonResponse(res, 'Signup failed')
+}
+
+export async function fetchPlatformTenants() {
+  const res = await request('/api/platform/tenants')
+  return handleJsonResponse(res, 'Failed to fetch tenants')
+}
+
+export async function updateTenantStatus(tenantId, status) {
+  const res = await request(`/api/platform/tenants/${tenantId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status }),
+  })
+  return handleJsonResponse(res, 'Failed to update tenant')
+}
